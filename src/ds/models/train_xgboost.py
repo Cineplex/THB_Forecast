@@ -35,7 +35,7 @@ def load_feature_data():
     engine = get_engine()
     if not engine: return None
     
-    print("📥 Loading data from Gold Layer...")
+    print("📥 Loading data from Feature Layer...")
     # ดึงทั้งหมด (ไม่กรอง version)
     query = "SELECT * FROM feature_data ORDER BY record_date ASC"
 
@@ -130,7 +130,7 @@ def train():
     
     # --- Evaluate (Deep Check) ---
     # เราต้องดึงราคาจริง (thb_usd) จาก DB มาเทียบ (ไม่ใช่ Diff)
-    # แต่ใน Gold Table เราไม่ได้ดึง thb_usd มา (เรามีแต่ target_diff และ lag_1)
+    # แต่ใน Feature Table เราไม่ได้ดึง thb_usd มา (เรามีแต่ target_diff และ lag_1)
     # ดังนั้น: Actual Price(t) = Lag1(t) + Target_Diff(t)
     
     # 1. Train Metrics

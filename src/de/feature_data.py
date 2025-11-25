@@ -84,10 +84,7 @@ def build_feature_data():
     if 'is_weekend' in df.columns:
         df = df.drop(columns=['is_weekend'])
 
-    # --- [REMOVED] ตัดส่วน Versioning ออกแล้ว ---
-    #df['feature_set_version'] = 'v3_final_gold'
-
-    # --- 5. Save to Gold Table ---
+    # --- 5. Save to Feature Table ---
     df = df.reset_index()
     try:
         df.to_sql('feature_data', engine, if_exists='replace', index=False)

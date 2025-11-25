@@ -17,13 +17,13 @@ LEARNING_RATE = 0.001
 VAL_START_DATE = "2023-01-01"
 TEST_START_DATE = "2024-01-01"
 
-# --- Load Data from Gold Layer Directly ---
+# --- Load Data from Feature Layer Directly ---
 def load_feature_data():
     engine = get_engine()
     if not engine: return None
-    print("📥 Loading data from Gold Layer (feature_data)...")
+    print("📥 Loading data from Feature Layer (feature_data)...")
     
-    # ดึงข้อมูลทั้งหมดจากตาราง Gold
+    # ดึงข้อมูลทั้งหมดจากตาราง Feature
     query = "SELECT * FROM feature_data ORDER BY record_date ASC"
     
     try:
@@ -66,7 +66,7 @@ def train():
     df = load_feature_data()
     if df is None: return
 
-    # 2. Select Features (ที่มีอยู่ใน Gold Table)
+    # 2. Select Features (ที่มีอยู่ใน Feature Table)
     feature_cols = [
         'gold', 'oil', 'bond_yield', 'dxy', 'sp500', 'set_index', 
         'rsi', 'macd', 'pct_change',

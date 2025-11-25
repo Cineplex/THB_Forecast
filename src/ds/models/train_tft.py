@@ -20,11 +20,11 @@ BATCH_SIZE = 128
 EPOCHS = 50
 LEARNING_RATE = 0.001
 
-# --- 1. Load Data (From Gold Layer) ---
+# --- 1. Load Data (From Feature Layer) ---
 def load_feature_data():
     engine = get_engine()
     if not engine: return None
-    print("📥 Loading data from Gold Layer (feature_data)...")
+    print("📥 Loading data from Feature Layer (feature_data)...")
     
     # ดึงข้อมูลทั้งหมด (Feature คำนวณและ Shift มาแล้ว)
     query = "SELECT * FROM feature_data ORDER BY record_date ASC"
@@ -164,11 +164,11 @@ def train():
         final = pd.merge(res, df, on='time_idx', how='left')
         
         # Reconstruct: Price(t) = Price(t-1) + Diff(t)
-        # ใน Gold Layer มี lag_1 อยู่แล้ว
+        # ใน Feature Layer มี lag_1 อยู่แล้ว
         final['pred_price'] = final['lag_1'] + final['pred_diff']
         
         # Actual Price: ต้องดึง thb_usd มาเทียบ (หรือคำนวณจาก lag_1 + target_diff)
-        # ใช้ lag_1 + target_diff ดีกว่าเพราะมันอยู่ใน Gold Layer แน่ๆ
+        # ใช้ lag_1 + target_diff ดีกว่าเพราะมันอยู่ใน Feature Layer แน่ๆ
         final['actual_price'] = final['lag_1'] + final['target_diff']
         
         mape = mean_absolute_percentage_error(final['actual_price'], final['pred_price'])
