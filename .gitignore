@@ -1,0 +1,4 @@
+venv/
+checkpoints/
+lightning_logs/
+.env
