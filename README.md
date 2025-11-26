@@ -6,6 +6,10 @@
 
 ```
 THB_Forecast/
+├── airflow/
+│   ├── dags/                        # Directed Acyclic Graphs (Workflows)
+│   ├── docker-compose.yaml          # Airflow Container Orchestration
+│   └── Dockerfile                   # Custom Airflow Image Configuration
 ├── src/
 │   ├── de/                          # Data Engineering
 │   │   ├── raw_data.py              # ดึงข้อมูลดิบ
@@ -22,6 +26,8 @@ THB_Forecast/
 │   ├── notebook/
 │   │   ├── feature_engineering.ipynb   # Notebook สำหรับ feature engineering
 │   │   └── modeling_comparison.ipynb   # Notebook เปรียบเทียบโมเดล
+│   ├── app.py                       # FastAPI Application (API)
+│   ├── deploy_models.py             # Model Inference Logic
 │   ├── config.py                    # การตั้งค่าฐานข้อมูล
 │   └── main.py                      # Pipeline orchestrator
 ├── .env                             # ตัวแปรสภาพแวดล้อม (Database config)
@@ -29,7 +35,7 @@ THB_Forecast/
 └── README.md
 ```
 
-## โครงสร้างโปรเจค
+## รายละเอียดโปรเจค
 
 ### 1. Data Engineering (de/)
 
@@ -136,6 +142,28 @@ python -m src.de.feature_data
 - แสดงกราฟ Predictions vs Actual สำหรับ Train, Validation, Test
 - Feature Importance Analysis
 
+### 3. Deployment & Orchestration
+
+#### API Service (`src/app.py`)
+- **Framework**: FastAPI
+- **หน้าที่**: ให้บริการ Model Prediction ผ่าน REST API
+- **Endpoint**: `/predict` (POST)
+- **Model Loading**: ใช้ `DeployModel` จาก `src/deploy_models.py`
+
+#### Inference Logic (`src/deploy_models.py`)
+- **Class**: `DeployModel`
+- **หน้าที่**: 
+  - โหลดโมเดล XGBoost (.pkl)
+  - ตรวจสอบ Features ที่จำเป็น
+  - ทำนายค่า Diff และแปลงกลับเป็นราคาจริง (Price = Lag1 + Diff)
+
+#### Workflow Orchestration (`airflow/`)
+- **Tool**: Apache Airflow (รันด้วย Docker Compose)
+- **หน้าที่**: ตั้งเวลาและจัดการลำดับการทำงาน (DAGs)
+  - Data Ingestion (Daily)
+  - Data Cleaning & Feature Engineering
+  - Model Retraining (Weekly/Monthly)
+
 ## การติดตั้ง
 
 ### 1. สร้าง Virtual Environment
@@ -201,6 +229,20 @@ python -m src.ds.models.train_tft
 jupyter notebook
 # เปิดไฟล์ใน src/notebook/
 ```
+
+### วิธีที่ 4: การรัน Data Pipeline (Airflow)
+ระบบนี้ใช้ Airflow ในการดูดข้อมูลและเตรียมข้อมูลอัตโนมัติ
+
+1. เข้าไปที่โฟลเดอร์ airflow:
+   ```bash
+   cd airflow
+   ```
+2. เริ่มระบบ:
+   ```bash
+   docker-compose up -d --build
+   ```
+3. เข้าใช้งาน: [http://localhost:8080](http://localhost:8080) (User/Pass: `airflow`)
+4. เปิดสวิตช์ DAG `thb_data_pipeline` ให้ทำงาน
 
 ## Database Tables
 
@@ -281,6 +323,9 @@ matplotlib
 holidays
 lightning
 ta
+fastapi
+uvicorn
+gunicorn
 ```
 
 ## ผู้พัฒนา

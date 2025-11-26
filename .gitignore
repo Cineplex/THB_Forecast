@@ -2,6 +2,5 @@ venv/
 checkpoints/
 lightning_logs/
 .env
-save_models/
 __pycache__
 save_old/
