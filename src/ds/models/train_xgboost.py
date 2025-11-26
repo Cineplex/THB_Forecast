@@ -249,8 +249,8 @@ def train():
         plt.show() 
         
         # Feature Importance
-        plt.figure(figsize=(10, 6))
-        plot_importance(model, max_num_features=12, height=0.5, title="Top Factors Driving THB/USD")
+        fig, ax = plt.subplots(figsize=(10, 6))
+        plot_importance(model, ax=ax, max_num_features=12, height=0.5, title="Top Factors Driving THB/USD")
         plt.tight_layout()
         print("[PLOT] Displaying Importance Graph... (Close window to finish)")
         plt.show()
