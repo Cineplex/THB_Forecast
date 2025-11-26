@@ -8,11 +8,6 @@ services:
       - POSTGRES_DB=airflow
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   # Service สำหรับ Initialize Database และสร้าง User
   airflow-init:
@@ -37,11 +32,6 @@ services:
           --password airflow
     volumes:
       - ./dags:/opt/airflow/dags
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   webserver:
     build: .
@@ -61,11 +51,6 @@ services:
     depends_on:
       - postgres
       - airflow-init
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   scheduler:
     build: .
@@ -83,11 +68,6 @@ services:
     depends_on:
       - postgres
       - airflow-init
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
 volumes:
   postgres-db-volume:

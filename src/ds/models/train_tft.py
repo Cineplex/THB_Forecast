@@ -1,5 +1,11 @@
 import pandas as pd
 import numpy as np
+
+# --- Monkey Patch for NumPy 2.0 Compatibility ---
+if not hasattr(np, 'string_'):
+    np.string_ = np.bytes_
+if not hasattr(np, 'unicode_'):
+    np.unicode_ = np.str_
 import torch
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks import EarlyStopping, LearningRateMonitor
@@ -198,12 +204,15 @@ def train():
     
     raw_dir_acc = (np.sign(final['target_diff']) == np.sign(final['pred_diff'])).mean()
     mae = mean_absolute_error(final['actual_price'], final['pred_price'])
+    from sklearn.metrics import r2_score
+    r2 = r2_score(final['actual_price'], final['pred_price'])
     
     print("-" * 50)
     print(f"🎯 TFT Final Performance :")
     print(f"   Raw Accuracy: {raw_dir_acc * 100:.2f}%")
     print(f"   Significant Acc: {dir_acc * 100:.2f}%")
     print(f"   Error (MAE): {mae:.4f} THB")
+    print(f"   R2 Score: {r2:.4f}")
     print("-" * 50)
     
     # --- Save Model ---
@@ -217,14 +226,10 @@ def train():
         model_dir = os.path.join("src", "ds", "models", "save_models")
         os.makedirs(model_dir, exist_ok=True)
         
-        # Copy checkpoint ไว้ในโฟลเดอร์เดียวกัน
-        checkpoint_filename = "tft_checkpoint.ckpt"
-        checkpoint_path = os.path.join(model_dir, checkpoint_filename)
-        shutil.copy2(best_model_path, checkpoint_path)
-        
         # รวมทุกอย่างในไฟล์เดียว
         model_package = {
-            'checkpoint_path': checkpoint_filename,  # relative path
+            'model_state_dict': best_tft.state_dict(),
+            'model_hparams': dict(best_tft.hparams), # Convert to dict to be safe
             'features': feature_cols,
             'categorical_features': cat_cols,
             'metadata': {
@@ -233,6 +238,7 @@ def train():
                 'test_mape': float(test_mape),
                 'test_mae': float(mae),
                 'test_accuracy': float(raw_dir_acc),
+                'test_r2': float(r2),
                 'val_start_date': "2023-01-01",
                 'test_start_date': "2024-01-01",
                 'max_encoder_length': MAX_ENCODER_LENGTH,
@@ -249,8 +255,7 @@ def train():
         
         print(f"\n💾 Model Saved Successfully!")
         print(f"   Path: {model_path}")
-        print(f"   Checkpoint: {checkpoint_path}")
-        print(f"   Includes: checkpoint info + features + metadata")
+        print(f"   Includes: model_state_dict + hparams + features + metadata")
         
     except Exception as e:
         print(f"\n❌ Model Save Error: {e}")

@@ -60,7 +60,7 @@ def build_feature_data():
     # --- 4. Shift Features ---
     features_to_shift = [
         'gold', 'oil', 'bond_yield', 'dxy', 'sp500', 'set_index',
-        'rsi', 'macd', 'pct_change', 'sma_50', # <--- ตัวนี้แหละที่หาไม่เจอเมื่อกี้
+        'rsi', 'macd', 'pct_change', 'sma_50',
         'volatility_5', 'volatility_20',
         'gold_oil_ratio', 'bond_dxy_ratio', 'dist_sma20'
     ]

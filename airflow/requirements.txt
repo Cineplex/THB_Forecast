@@ -15,4 +15,3 @@ ta
 fastapi
 uvicorn
 gunicorn
-shap
