@@ -8,6 +8,7 @@ class DeployModel:
         self.model_path = model_path
         self.model = None
         self.features = None
+        self.dtypes = None
         self.metadata = None
         self.load_model()
 
@@ -21,6 +22,7 @@ class DeployModel:
             model_package = joblib.load(self.model_path)
             self.model = model_package['model']
             self.features = model_package['features']
+            self.dtypes = model_package.get('dtypes', {}) # Load dtypes
             self.metadata = model_package.get('metadata', {})
             print("✅ Model loaded successfully!")
             print(f"   Type: {self.metadata.get('model_type', 'Unknown')}")
@@ -61,10 +63,20 @@ class DeployModel:
         X = df[expected_features].copy()
         
         # Handle Categorical Features (must match training)
-        cat_cols = ['day_of_week', 'month', 'is_holiday_th']
-        for c in cat_cols:
-            if c in X.columns:
-                X[c] = X[c].astype('category')
+        # Apply saved dtypes to ensure consistency (especially for Categories)
+        if self.dtypes:
+            for col, dtype in self.dtypes.items():
+                if col in X.columns:
+                    try:
+                        X[col] = X[col].astype(dtype)
+                    except Exception as e:
+                        print(f"Warning: Could not cast {col} to {dtype}: {e}")
+        else:
+            # Fallback for old models (might still fail if categories don't match)
+            cat_cols = ['day_of_week', 'month', 'is_holiday_th']
+            for c in cat_cols:
+                if c in X.columns:
+                    X[c] = X[c].astype('category')
 
         # Predict Diff
         try:

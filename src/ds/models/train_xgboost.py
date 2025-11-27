@@ -182,6 +182,7 @@ def train():
         model_package = {
             'model': model,
             'features': feature_cols,
+            'dtypes': X_train.dtypes.to_dict(), # <--- Save dtypes for inference consistency
             'metadata': {
                 'model_type': 'XGBoost',
                 'train_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
